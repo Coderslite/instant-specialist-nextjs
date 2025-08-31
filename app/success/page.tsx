@@ -1,19 +1,8 @@
 'use client'
 
 import { FaCheckCircle } from "react-icons/fa";
-import { useRouter } from 'next/navigation'
-
 // Success Page Component
 const RegistrationSuccess = () => {
-    const router = useRouter();
-
-    const handleGoToDashboard = () => {
-        router.push('/dashboard');
-    };
-
-    const handleGoToHome = () => {
-        router.push('/');
-    };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 flex flex-col items-center justify-center p-6">
@@ -32,10 +21,10 @@ const RegistrationSuccess = () => {
                 </p>
 
                 <div className="bg-blue-50 rounded-lg p-4 mb-6">
-                    <h3 className="font-semibold text-blue-800 mb-2">What's Next?</h3>
+                    <h3 className="font-semibold text-blue-800 mb-2">What is Next?</h3>
                     <ul className="text-sm text-blue-600 text-left list-disc pl-5 space-y-1">
                         <li>Your account will be reviewed by our team</li>
-                        <li>You'll receive notification once approved</li>
+                        <li>You will receive notification once approved</li>
                     </ul>
                 </div>
 

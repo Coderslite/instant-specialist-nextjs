@@ -147,6 +147,64 @@ const Register = () => {
 
   const validatePassword = (password: string) => password.length >= 6
 
+  // Complete form validation function
+  const validateCompleteForm = () => {
+    const requiredFields = [
+      'firstname',
+      'lastname',
+      'email',
+      'password',
+      'phoneNumber',
+      'gender',
+      'institution',
+      'graduation',
+      'housemanship',
+      'yearHousemanship',
+      'registrationDate',
+      'workAddress',
+      'homeAddress',
+      'maritalStatus',
+      'stateOfOrigin',
+      'specialization',
+      'bio',
+      'experience'
+    ]
+
+    // Check if all required text fields are filled
+    for (const field of requiredFields) {
+      if (!formData[field as keyof typeof formData] || formData[field as keyof typeof formData] === '') {
+        return { isValid: false, message: `Please fill in ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}` }
+      }
+    }
+
+    // Check email format
+    if (!validateEmail(formData.email)) {
+      return { isValid: false, message: 'Please enter a valid email address' }
+    }
+
+    // Check password strength
+    if (!validatePassword(formData.password)) {
+      return { isValid: false, message: 'Password must be at least 6 characters long' }
+    }
+
+    // Check if profile photo is uploaded
+    if (!formData.photoUrl) {
+      return { isValid: false, message: 'Please upload your profile photo' }
+    }
+
+    // Check if certificate is uploaded
+    if (!formData.certificate) {
+      return { isValid: false, message: 'Please upload your medical certificate' }
+    }
+
+    // Check if experience is a valid number
+    if (isNaN(Number(formData.experience)) || Number(formData.experience) < 0) {
+      return { isValid: false, message: 'Please enter a valid number of years of experience' }
+    }
+
+    return { isValid: true, message: '' }
+  }
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
@@ -182,14 +240,12 @@ const Register = () => {
     }
   }
 
-  // Send OTP
+  // Send OTP with complete form validation
   const handleSendOTP = async () => {
-    if (!formData.email) {
-      toast.error('Please enter your email')
-      return false
-    }
-    if (!validateEmail(formData.email)) {
-      toast.error('Invalid email')
+    // Validate complete form before sending OTP
+    const validation = validateCompleteForm()
+    if (!validation.isValid) {
+      toast.error(validation.message)
       return false
     }
 
@@ -263,18 +319,7 @@ const Register = () => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // Validate form data
-    if (!validateEmail(formData.email)) {
-      toast.error('Invalid email')
-      return
-    }
-
-    if (!validatePassword(formData.password)) {
-      toast.error('Password must be at least 6 characters')
-      return
-    }
-
-    // If OTP hasn't been sent yet, send it
+    // If OTP hasn't been sent yet, send it (this will validate the complete form)
     if (!otpSent) {
       await handleSendOTP()
       return
@@ -284,8 +329,6 @@ const Register = () => {
     if (!handleVerifyOTP()) {
       return
     }
-
-    
 
     setIsLoading(true)
 
@@ -423,7 +466,9 @@ const Register = () => {
 
                 <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                   <div>
-                    <label className="block text-gray-700 text-sm font-bold mb-2">First Name</label>
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      First Name <span className="text-red-500">*</span>
+                    </label>
                     <input
                       className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-transparent text-sm sm:text-base"
                       type="text"
@@ -435,7 +480,9 @@ const Register = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-gray-700 text-sm font-bold mb-2">Last Name</label>
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Last Name <span className="text-red-500">*</span>
+                    </label>
                     <input
                       className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-transparent text-sm sm:text-base"
                       type="text"
@@ -450,7 +497,9 @@ const Register = () => {
 
                 <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                   <div>
-                    <label className="block text-gray-700 text-sm font-bold mb-2">Email</label>
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Email <span className="text-red-500">*</span>
+                    </label>
                     <input
                       className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-transparent text-sm sm:text-base"
                       type="email"
@@ -462,7 +511,9 @@ const Register = () => {
                     />
                   </div>
                   <div className="relative">
-                    <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Password <span className="text-red-500">*</span>
+                    </label>
                     <div className="relative">
                       <input
                         className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-transparent pr-10 text-sm sm:text-base"
@@ -487,7 +538,9 @@ const Register = () => {
 
                 <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                   <div>
-                    <label className="block text-gray-700 text-sm font-bold mb-2">Phone Number</label>
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Phone Number <span className="text-red-500">*</span>
+                    </label>
                     <input
                       className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-transparent text-sm sm:text-base"
                       type="tel"
@@ -499,7 +552,9 @@ const Register = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-gray-700 text-sm font-bold mb-2">Gender</label>
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Gender <span className="text-red-500">*</span>
+                    </label>
                     <select
                       className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-transparent text-sm sm:text-base"
                       name="gender"
@@ -517,7 +572,9 @@ const Register = () => {
 
                 <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                   <div>
-                    <label className="block text-gray-700 text-sm font-bold mb-2">Marital Status</label>
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Marital Status <span className="text-red-500">*</span>
+                    </label>
                     <select
                       className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-transparent text-sm sm:text-base"
                       name="maritalStatus"
@@ -533,7 +590,9 @@ const Register = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-gray-700 text-sm font-bold mb-2">State of Origin</label>
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      State of Origin <span className="text-red-500">*</span>
+                    </label>
                     <input
                       className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-transparent text-sm sm:text-base"
                       type="text"
@@ -553,7 +612,9 @@ const Register = () => {
 
                 <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                   <div>
-                    <label className="block text-gray-700 text-sm font-bold mb-2">Institution</label>
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Institution <span className="text-red-500">*</span>
+                    </label>
                     <input
                       className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-transparent text-sm sm:text-base"
                       type="text"
@@ -565,7 +626,9 @@ const Register = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-gray-700 text-sm font-bold mb-2">Graduation Year</label>
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Graduation Year <span className="text-red-500">*</span>
+                    </label>
                     <input
                       className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-transparent text-sm sm:text-base"
                       type="text"
@@ -580,7 +643,9 @@ const Register = () => {
 
                 <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                   <div>
-                    <label className="block text-gray-700 text-sm font-bold mb-2">Housemanship</label>
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Housemanship <span className="text-red-500">*</span>
+                    </label>
                     <input
                       className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-transparent text-sm sm:text-base"
                       type="text"
@@ -592,7 +657,9 @@ const Register = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-gray-700 text-sm font-bold mb-2">Year of Housemanship</label>
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Year of Housemanship <span className="text-red-500">*</span>
+                    </label>
                     <input
                       className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-transparent text-sm sm:text-base"
                       type="text"
@@ -607,7 +674,9 @@ const Register = () => {
 
                 <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                   <div>
-                    <label className="block text-gray-700 text-sm font-bold mb-2">Registration Date</label>
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Registration Date <span className="text-red-500">*</span>
+                    </label>
                     <input
                       className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-transparent text-sm sm:text-base"
                       type="date"
@@ -618,7 +687,9 @@ const Register = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-gray-700 text-sm font-bold mb-2">Specialization</label>
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Specialization <span className="text-red-500">*</span>
+                    </label>
                     <select
                       className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-transparent text-sm sm:text-base"
                       name="specialization"
@@ -635,7 +706,9 @@ const Register = () => {
                 </div>
 
                 <div>
-                  <label className="block text-gray-700 text-sm font-bold mb-2">Experience (Years)</label>
+                  <label className="block text-gray-700 text-sm font-bold mb-2">
+                    Experience (Years) <span className="text-red-500">*</span>
+                  </label>
                   <input
                     className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-transparent text-sm sm:text-base"
                     type="number"
@@ -643,6 +716,7 @@ const Register = () => {
                     value={formData.experience}
                     onChange={handleInputChange}
                     placeholder="Years of Experience"
+                    min="0"
                     required
                   />
                 </div>
@@ -654,7 +728,9 @@ const Register = () => {
 
                 <div className='grid grid-cols-1 gap-4'>
                   <div>
-                    <label className="block text-gray-700 text-sm font-bold mb-2">Work Address</label>
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Work Address <span className="text-red-500">*</span>
+                    </label>
                     <input
                       className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-transparent text-sm sm:text-base"
                       type="text"
@@ -666,7 +742,9 @@ const Register = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-gray-700 text-sm font-bold mb-2">Home Address</label>
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Home Address <span className="text-red-500">*</span>
+                    </label>
                     <input
                       className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-transparent text-sm sm:text-base"
                       type="text"
@@ -756,7 +834,9 @@ const Register = () => {
 
                 <div className='grid grid-cols-1 gap-4'>
                   <div>
-                    <label className="block text-gray-700 text-sm font-bold mb-2">Profile Photo</label>
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Profile Photo <span className="text-red-500">*</span>
+                    </label>
                     <input
                       className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-transparent text-sm sm:text-base file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
                       type="file"
@@ -783,7 +863,9 @@ const Register = () => {
                   </div>
 
                   <div>
-                    <label className="block text-gray-700 text-sm font-bold mb-2">Medical Certificate</label>
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Medical Certificate <span className="text-red-500">*</span>
+                    </label>
                     <input
                       className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-transparent text-sm sm:text-base file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
                       type="file"
@@ -816,7 +898,9 @@ const Register = () => {
                 <h5 className="text-lg font-semibold text-gray-800 border-b pb-2">About You</h5>
 
                 <div>
-                  <label className="block text-gray-700 text-sm font-bold mb-2">Bio</label>
+                  <label className="block text-gray-700 text-sm font-bold mb-2">
+                    Bio <span className="text-red-500">*</span>
+                  </label>
                   <textarea
                     className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-transparent text-sm sm:text-base resize-none"
                     name="bio"
@@ -835,7 +919,9 @@ const Register = () => {
                   <h5 className="text-lg font-semibold text-gray-800 border-b pb-2">Verification</h5>
 
                   <div>
-                    <label className="block text-gray-700 text-sm font-bold mb-2">OTP Code</label>
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      OTP Code <span className="text-red-500">*</span>
+                    </label>
                     <input
                       className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-transparent text-sm sm:text-base text-center tracking-wider"
                       type="text"
